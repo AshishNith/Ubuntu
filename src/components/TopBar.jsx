@@ -1,51 +1,132 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useRef } from 'react'
+import TopMenu from './TopMenu'
 
 const TopBar = () => {
-  const [currentTime, setCurrentTime] = useState(new Date())
+  const [currentTime, setCurrentTime] = useState(new Date());
+  const [location, setLocation] = useState(null);
+  const [cityInfo, setCityInfo] = useState(null);
+  const [error, setError] = useState(null);
+  const [activeMenu, setActiveMenu] = useState(null);
+  const [menuPosition, setMenuPosition] = useState({ x: 0, y: 0 });
 
   useEffect(() => {
     const timer = setInterval(() => {
-      setCurrentTime(new Date())
-    }, 1000)
+      setCurrentTime(new Date());
+    }, 1000);
 
-    return () => clearInterval(timer)
-  }, [])
+    return () => clearInterval(timer);
+  }, []);
 
-  const timeString = currentTime
-    .toLocaleTimeString('en-GB', {
-      hour: '2-digit',
-      minute: '2-digit',
-      second: '2-digit',
-      hour12: false
-    })
+  const timeString = currentTime.toLocaleTimeString('en-GB', {
+    hour: '2-digit',
+    minute: '2-digit',
+    second: '2-digit',
+    hour12: false,
+  });
 
-  const dateString = currentTime
-    .toLocaleDateString('en-GB', {
-      weekday: 'long',
-      day: 'numeric',
-      month: 'long',
-      year: 'numeric'
-    })
+  const dateString = currentTime.toLocaleDateString('en-GB', {
+    weekday: 'long',
+    day: 'numeric',
+    month: 'long',
+    year: 'numeric',
+  });
+
+  const getCityFromCoordinates = async (latitude, longitude) => {
+    try {
+      const apiKey = '582c8c66f06a44758d3d4596fb3ed32a';
+      const response = await fetch(
+        `https://api.opencagedata.com/geocode/v1/json?q=${latitude}+${longitude}&key=${apiKey}`
+      );
+      const data = await response.json();
+
+      if (data.results.length > 0) {
+        const components = data.results[0].components;
+        setCityInfo({
+          city: components.city || components.town || components.village,
+          state: components.state,
+          country: components.country,
+        });
+      }
+    } catch (err) {
+      setError('Unable to fetch city information');
+    }
+  };
+
+  useEffect(() => {
+    if (!navigator.geolocation) {
+      setError('Geolocation is not supported');
+      return;
+    }
+
+    navigator.geolocation.getCurrentPosition(
+      async (position) => {
+        const { latitude, longitude } = position.coords;
+        setLocation({ latitude, longitude });
+        await getCityFromCoordinates(latitude, longitude);
+      },
+      (err) => {
+        setError('Unable to retrieve location');
+      }
+    );
+  }, []);
+
+  const handleIconClick = (menuType, event) => {
+    const rect = event.currentTarget.getBoundingClientRect();
+    setMenuPosition({ 
+      x: rect.left,
+      y: rect.bottom + 8
+    });
+    setActiveMenu(activeMenu === menuType ? null : menuType);
+  };
+
+  useEffect(() => {
+    const handleClickOutside = (e) => {
+      if (activeMenu && !e.target.closest('.top-menu')) {
+        setActiveMenu(null);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, [activeMenu]);
 
   return (
-    <div className="fixed z-2 top-0 left-0 right-0 h-8 bg-black/50 backdrop-blur-md text-white flex items-center justify-between px-4 text-sm">
-      <div className="flex items-center gap-4">
-        <span className="font-medium">Activities</span>
-      </div>
-
-      <div className="flex items-center gap-4">
-        <div className="flex items-center gap-3">
-          <i className="ri-wifi-fill"></i>
-          <i className="ri-volume-up-fill"></i>
-          <i className="ri-battery-fill"></i>
+    <>
+      <div className="fixed z-10 top-0 left-0 right-0 h-8 bg-black/50 backdrop-blur-md text-white flex items-center justify-between px-4 text-sm">
+        <div className="flex items-center gap-4">
+          <span className="font-medium">Activities</span>
         </div>
-        <div className="flex items-center gap-4 text-xs">
-          <span className=''>{dateString}</span>
-          <span>{timeString}</span>
+
+        <div className="flex items-center gap-4">
+          <div className="flex items-center gap-3">
+            <i onClick={(e) => handleIconClick('wifi', e)} className="ri-wifi-fill cursor-pointer hover:bg-white/10 p-1 rounded"></i>
+            <i onClick={(e) => handleIconClick('volume', e)} className="ri-volume-up-fill cursor-pointer hover:bg-white/10 p-1 rounded"></i>
+            <i onClick={(e) => handleIconClick('battery', e)} className="ri-battery-fill cursor-pointer hover:bg-white/10 p-1 rounded"></i>
+          </div>
+          <div className="flex items-center gap-4 text-xs">
+            {error ? (
+              <span>{error}</span>
+            ) : (
+              <>
+                {cityInfo && <span>{cityInfo.city}, {cityInfo.country}</span>}
+                <span>{dateString}</span>
+                <span>{timeString}</span>
+              </>
+            )}
+          </div>
         </div>
       </div>
-    </div>
-  )
-}
+      
+      <div className="top-menu z-50">
+        <TopMenu 
+          type={activeMenu}
+          isVisible={!!activeMenu}
+          position={menuPosition}
+          onClose={() => setActiveMenu(null)}
+        />
+      </div>
+    </>
+  );
+};
 
-export default TopBar
+export default TopBar;
