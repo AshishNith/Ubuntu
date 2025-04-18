@@ -8,6 +8,8 @@ const TopBar = () => {
   const [error, setError] = useState(null);
   const [activeMenu, setActiveMenu] = useState(null);
   const [menuPosition, setMenuPosition] = useState({ x: 0, y: 0 });
+  const [weather, setWeather] = useState(null);
+  const [weatherError, setWeatherError] = useState(null);
 
   useEffect(() => {
     const timer = setInterval(() => {
@@ -70,6 +72,33 @@ const TopBar = () => {
     );
   }, []);
 
+  const getWeather = async (latitude, longitude) => {
+    try {
+      const apiKey = '97c0e6b87b6e2dfbd33d9062129651ad';
+      const url = `https://api.openweathermap.org/data/2.5/weather?lat=${latitude}&lon=${longitude}&appid=${apiKey}&units=metric`;
+      
+      const res = await fetch(url);
+      if (!res.ok) throw new Error('Weather data fetch failed');
+      
+      const data = await res.json();
+      setWeather({
+        temp: Math.round(data.main.temp),
+        description: data.weather[0].description,
+        icon: data.weather[0].icon
+      });
+      setWeatherError(null);
+    } catch (err) {
+      setWeatherError('Weather data unavailable');
+      setWeather(null);
+    }
+  };
+
+  useEffect(() => {
+    if (location?.latitude && location?.longitude) {
+      getWeather(location.latitude, location.longitude);
+    }
+  }, [location]);
+
   const handleIconClick = (menuType, event) => {
     const rect = event.currentTarget.getBoundingClientRect();
     setMenuPosition({ 
@@ -108,7 +137,22 @@ const TopBar = () => {
               <span>{error}</span>
             ) : (
               <>
-                {cityInfo && <span>{cityInfo.city}, {cityInfo.country}</span>}
+                {cityInfo && (
+                  <div className="flex items-center gap-2">
+                    <span>{cityInfo.city}, {cityInfo.country}</span>
+                    {weather && (
+                      <div className="flex items-center gap-1">
+                        <span>•</span>
+                        <span>{weather.temp}°C</span>
+                        <img
+                          src={`https://openweathermap.org/img/wn/${weather.icon}.png`}
+                          alt={weather.description}
+                          className="w-6 h-6 -my-1"
+                        />
+                      </div>
+                    )}
+                  </div>
+                )}
                 <span>{dateString}</span>
                 <span>{timeString}</span>
               </>
