@@ -10,7 +10,7 @@ const App = () => {
   return (
     <Router>
       <WindowProvider>
-        <div className='text-black'>
+        <div className='text-black overflow-hidden'>
           <TopBar />
           <Dock />
           <Routes>

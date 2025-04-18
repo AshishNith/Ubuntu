@@ -9,12 +9,14 @@ import firefoxIcon from '/Logos/firefox.png'
 import filesIcon from '/Logos/folder.png'
 import softwareIcon from '/Logos/store.png'
 import helpIcon from '/Logos/help.png'
+import Camera from '../windows/Camera'
 
 const Dock = () => {
   const [showApps, setShowApps] = useState(false);
   const [showFiles, setShowFiles] = useState(false);
   const [showSettings, setShowSettings] = useState(false);  
   const [showTerminal, setShowTerminal] = useState(false);
+  const [showCamera, setShowCamera] = useState(false);
 
   const handleItemClick = (name) => {
     switch(name) {
@@ -26,6 +28,9 @@ const Dock = () => {
         break;
       case 'Terminal':
         setShowTerminal(true);
+        break;
+    case 'Camera':
+        setShowCamera(true);
         break;
       default:
         break;
@@ -62,7 +67,12 @@ const Dock = () => {
       id: 7,
       icon: helpIcon,
       name: "Help"
-    }
+    },
+    {
+        id: 8,
+        icon: 'https://cdn-icons-png.flaticon.com/128/3617/3617277.png',
+        name: "Camera"
+      }
   ]
 
   return (
@@ -102,6 +112,7 @@ const Dock = () => {
       <Files isVisible={showFiles} setShowFiles={setShowFiles} />
       <Settings isVisible={showSettings} setShowSettings={setShowSettings} />
       <Terminal isVisible={showTerminal} setShowTerminal={setShowTerminal} />
+      <Camera isVisible={showCamera} setShowCamera={setShowCamera} />
     </>
   )
 }

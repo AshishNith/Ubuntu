@@ -3,7 +3,7 @@ import React from 'react'
 const Home = () => {
   return (
     <div 
-      className="min-h-screen "
+      className="min-h-screen overflow-hidden "
       style={{ 
         backgroundImage: `url('/wallpaper.jpg')`,
         backgroundSize: 'cover',
