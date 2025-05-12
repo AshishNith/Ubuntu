@@ -1,8 +1,7 @@
-import React from 'react'
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom'
 import Home from './pages/Home'
 // import NotFound from './pages/NotFound'
-import TopBar from './components/TopBar'
+import TopBar from './components/TopBar.jsx'
 import Dock from './components/Dock'
 import { WindowProvider } from './contexts/WindowContext'
 

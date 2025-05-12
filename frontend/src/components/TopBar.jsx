@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react'
+import React, { useState, useEffect } from 'react'
 import TopMenu from './TopMenu'
 
 const TopBar = () => {
@@ -12,10 +12,7 @@ const TopBar = () => {
   const [weatherError, setWeatherError] = useState(null);
 
   useEffect(() => {
-    const timer = setInterval(() => {
-      setCurrentTime(new Date());
-    }, 1000);
-
+    const timer = setInterval(() => setCurrentTime(new Date()), 1000);
     return () => clearInterval(timer);
   }, []);
 
@@ -35,9 +32,8 @@ const TopBar = () => {
 
   const getCityFromCoordinates = async (latitude, longitude) => {
     try {
-      const apiKey = '582c8c66f06a44758d3d4596fb3ed32a';
       const response = await fetch(
-        `https://api.opencagedata.com/geocode/v1/json?q=${latitude}+${longitude}&key=${apiKey}`
+        `https://api.opencagedata.com/geocode/v1/json?q=${latitude}+${longitude}&key=582c8c66f06a44758d3d4596fb3ed32a`
       );
       const data = await response.json();
 
@@ -50,7 +46,7 @@ const TopBar = () => {
         });
       }
     } catch (err) {
-      setError('Unable to fetch city information');
+      setError('Unable to fetch city information',err);
     }
   };
 
@@ -66,7 +62,7 @@ const TopBar = () => {
         setLocation({ latitude, longitude });
         await getCityFromCoordinates(latitude, longitude);
       },
-      (err) => {
+      () => {
         setError('Unable to retrieve location');
       }
     );
@@ -74,21 +70,21 @@ const TopBar = () => {
 
   const getWeather = async (latitude, longitude) => {
     try {
-      const apiKey = '97c0e6b87b6e2dfbd33d9062129651ad';
+      const apiKey = import.meta.env.VITE_WEATHER_API_KEY;
       const url = `https://api.openweathermap.org/data/2.5/weather?lat=${latitude}&lon=${longitude}&appid=${apiKey}&units=metric`;
-      
+
       const res = await fetch(url);
       if (!res.ok) throw new Error('Weather data fetch failed');
-      
+
       const data = await res.json();
       setWeather({
         temp: Math.round(data.main.temp),
         description: data.weather[0].description,
-        icon: data.weather[0].icon
+        icon: data.weather[0].icon,
       });
       setWeatherError(null);
     } catch (err) {
-      setWeatherError('Weather data unavailable');
+      setWeatherError('Weather data unavailable',err);
       setWeather(null);
     }
   };
@@ -101,10 +97,7 @@ const TopBar = () => {
 
   const handleIconClick = (menuType, event) => {
     const rect = event.currentTarget.getBoundingClientRect();
-    setMenuPosition({ 
-      x: rect.left,
-      y: rect.bottom + 8
-    });
+    setMenuPosition({ x: rect.left, y: rect.bottom + 8 });
     setActiveMenu(activeMenu === menuType ? null : menuType);
   };
 
@@ -151,6 +144,7 @@ const TopBar = () => {
                         />
                       </div>
                     )}
+                    {weatherError && <span className="text-red-400">• {weatherError}</span>}
                   </div>
                 )}
                 <span>{dateString}</span>
@@ -160,7 +154,7 @@ const TopBar = () => {
           </div>
         </div>
       </div>
-      
+
       <div className="top-menu z-50">
         <TopMenu 
           type={activeMenu}
