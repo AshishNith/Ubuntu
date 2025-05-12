@@ -99,7 +99,15 @@ const Camera = ({ isVisible, setShowCamera }) => {
       <div className='window-header h-12 bg-gray-950 rounded-t-xl flex items-center justify-between px-4 cursor-move'>
         <span className='text-white font-semibold'>Camera</span>
         <div className='flex items-center gap-2'>
-          <i onClick={() => setShowCamera(false)} className="ri-close-fill text-white hover:bg-gray-800/50 p-2 rounded-full cursor-pointer"></i>
+          <i
+            onClick={() => {
+              if (videoRef.current?.srcObject) {
+                videoRef.current.srcObject.getTracks().forEach(track => track.stop());
+              }
+              setShowCamera(false);
+            }}
+            className="ri-close-fill text-white hover:bg-gray-800/50 p-2 rounded-full cursor-pointer"
+          ></i>
         </div>
       </div>
 
