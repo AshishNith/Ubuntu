@@ -16,35 +16,35 @@ const Camera = ({ isVisible, setShowCamera }) => {
       const devices = await navigator.mediaDevices.enumerateDevices();
       const videoDevices = devices.filter(device => device.kind === 'videoinput');
       setDevices(videoDevices);
-      
+
       if (videoDevices.length > 0) {
         const stream = await navigator.mediaDevices.getUserMedia({
-          video: { 
+          video: {
             deviceId: videoDevices[0].deviceId,
             width: { ideal: 1920 },
             height: { ideal: 1080 },
-            aspectRatio: { ideal: 16/9 }
+            aspectRatio: { ideal: 16 / 9 }
           }
         });
         videoRef.current.srcObject = stream;
-        setActiveDeviceId(videoDevices[4].deviceId);
+        setActiveDeviceId(videoDevices[0].deviceId);
         setHasPermission(true);
         setError(null);
       } else {
         setError('No camera devices found');
       }
     } catch (err) {
-      setError('Camera access denied');
+      setError('Camera access denied', err);
       setHasPermission(false);
     }
   };
 
   const switchCamera = async () => {
     if (!hasPermission || devices.length <= 1) return;
-    
+
     const currentIndex = devices.findIndex(d => d.deviceId === activeDeviceId);
     const nextIndex = (currentIndex + 1) % devices.length;
-    
+
     try {
       const stream = await navigator.mediaDevices.getUserMedia({
         video: { deviceId: devices[nextIndex].deviceId }
@@ -52,7 +52,7 @@ const Camera = ({ isVisible, setShowCamera }) => {
       videoRef.current.srcObject = stream;
       setActiveDeviceId(devices[nextIndex].deviceId);
     } catch (err) {
-      setError('Failed to switch camera');
+      setError('Failed to switch camera', err);
     }
   };
 
@@ -61,7 +61,7 @@ const Camera = ({ isVisible, setShowCamera }) => {
     canvas.width = videoRef.current.videoWidth;
     canvas.height = videoRef.current.videoHeight;
     canvas.getContext('2d').drawImage(videoRef.current, 0, 0);
-    
+
     const link = document.createElement('a');
     link.download = `photo_${new Date().getTime()}.png`;
     link.href = canvas.toDataURL();
@@ -78,17 +78,17 @@ const Camera = ({ isVisible, setShowCamera }) => {
       }
     };
   }, [isVisible]);
-  
+
   if (!isVisible) return null;
 
   return (
-    <div 
+    <div
       onMouseDown={(e) => {
         handleMouseDown(e);
         bringToFront('camera');
       }}
       className='w-[800px] h-[600px] bg-gray-900 rounded-xl shadow-lg absolute select-none'
-      style={{ 
+      style={{
         left: `${position.x}px`,
         top: `${position.y}px`,
         cursor: 'default',
@@ -124,14 +124,14 @@ const Camera = ({ isVisible, setShowCamera }) => {
 
         {/* Camera Controls */}
         <div className='flex justify-center gap-4 py-2'>
-          <button 
+          <button
             onClick={switchCamera}
             disabled={devices.length <= 1}
             className='p-4 bg-white/10 rounded-full hover:bg-white/20 transition-colors disabled:opacity-50'
           >
             <i className="ri-camera-switch-fill text-white text-xl"></i>
           </button>
-          <button 
+          <button
             onClick={capturePhoto}
             disabled={!hasPermission}
             className='p-6 bg-white rounded-full hover:bg-white/90 transition-colors disabled:opacity-50'
