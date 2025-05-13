@@ -12,6 +12,11 @@ app.use(
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+app.use("/temp", express.static("temp"));
 
+// routes
+import cameraRouter from "./routers/camera.route.js";
+
+app.use("/api/v1/camera", cameraRouter);
 
 export { app };
