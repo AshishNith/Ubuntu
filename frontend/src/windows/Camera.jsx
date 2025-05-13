@@ -56,17 +56,41 @@ const Camera = ({ isVisible, setShowCamera }) => {
     }
   };
 
-  const capturePhoto = () => {
-    const canvas = document.createElement('canvas');
-    canvas.width = videoRef.current.videoWidth;
-    canvas.height = videoRef.current.videoHeight;
-    canvas.getContext('2d').drawImage(videoRef.current, 0, 0);
-
-    const link = document.createElement('a');
-    link.download = `photo_${new Date().getTime()}.png`;
-    link.href = canvas.toDataURL();
-    link.click();
+  const photoUpload = async (blob) => {
+    const formData = new FormData();
+    formData.append('photo', blob, `photo_${Date.now()}.png`);
+  
+    try {
+      const response = await fetch('http://localhost:5000/api/v1/camera/photoUpload', {
+        method: 'POST',
+        body: formData,
+      });
+  
+      const result = await response.json();
+      if (response.ok) {
+        console.log('Photo uploaded successfully:', result);
+      } else {
+        console.error('Upload failed:', result);
+      }
+    } catch (err) {
+      console.error('Error uploading photo:', err);
+    }
   };
+  
+ const capturePhoto = () => {
+  const canvas = document.createElement('canvas');
+  canvas.width = videoRef.current.videoWidth;
+  canvas.height = videoRef.current.videoHeight;
+
+  const ctx = canvas.getContext('2d');
+  ctx.drawImage(videoRef.current, 0, 0, canvas.width, canvas.height);
+
+  canvas.toBlob((blob) => {
+    if (blob) {
+      photoUpload(blob); // Upload the blob
+    }
+  }, 'image/png');
+};
 
   useEffect(() => {
     if (isVisible) {
