@@ -2,7 +2,7 @@ import React from 'react'
 
 const Notfound = () => {
   return (
-    <div>Notfound</div>
+    <div className='text-center w-full h-full flex items-center justify-center text-black'>Notfound</div>
   )
 }
 

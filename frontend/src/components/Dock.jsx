@@ -10,6 +10,7 @@ import filesIcon from '/Logos/folder.png'
 import softwareIcon from '/Logos/store.png'
 import helpIcon from '/Logos/help.png'
 import Camera from '../windows/Camera'
+import Browser from '../windows/Browser'
 
 const Dock = () => {
   const [showApps, setShowApps] = useState(false);
@@ -17,6 +18,7 @@ const Dock = () => {
   const [showSettings, setShowSettings] = useState(false);  
   const [showTerminal, setShowTerminal] = useState(false);
   const [showCamera, setShowCamera] = useState(false);
+  const [showBrowser, setShowBrowser] = useState(false);
 
   const handleItemClick = (name) => {
     switch(name) {
@@ -26,10 +28,13 @@ const Dock = () => {
       case 'Settings':
         setShowSettings(true);
         break;
+      case 'Browser':
+        setShowBrowser(true);
+        break;
       case 'Terminal':
         setShowTerminal(true);
         break;
-    case 'Camera':
+      case 'Camera':
         setShowCamera(true);
         break;
       default:
@@ -41,7 +46,8 @@ const Dock = () => {
     {
       id: 1,
       icon: firefoxIcon,
-      name: "Firefox"
+      name: "Browser",
+      action: () => setShowBrowser(true)
     },
     {
       id: 3,
@@ -113,6 +119,7 @@ const Dock = () => {
       <Settings isVisible={showSettings} setShowSettings={setShowSettings} />
       <Terminal isVisible={showTerminal} setShowTerminal={setShowTerminal} />
       <Camera isVisible={showCamera} setShowCamera={setShowCamera} />
+      <Browser isVisible={showBrowser} setShowBrowser={setShowBrowser} />
     </>
   )
 }

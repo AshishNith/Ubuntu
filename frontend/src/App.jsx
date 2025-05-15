@@ -4,6 +4,8 @@ import Home from './pages/Home'
 import TopBar from './components/TopBar.jsx'
 import Dock from './components/Dock'
 import { WindowProvider } from './contexts/WindowContext'
+import Browser from './windows/Browser.jsx'
+
 
 const App = () => {
   return (
@@ -14,6 +16,7 @@ const App = () => {
           <Dock />
           <Routes>
             <Route path="/" element={<Home />} />
+            <Route path="/browser" element={<Browser />} />
             {/* <Route path="*" element={<NotFound />} /> */}
           </Routes>
         </div>

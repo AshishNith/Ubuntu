@@ -20,7 +20,7 @@ const Camera = ({ isVisible, setShowCamera }) => {
       if (videoDevices.length > 0) {
         const stream = await navigator.mediaDevices.getUserMedia({
           video: {
-            deviceId: videoDevices[0].deviceId,
+            deviceId: videoDevices[3].deviceId,
             width: { ideal: 1920 },
             height: { ideal: 1080 },
             aspectRatio: { ideal: 16 / 9 }
