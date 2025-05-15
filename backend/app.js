@@ -1,20 +1,20 @@
 // server.js
 import express from "express";
 import cors from "cors";
-import axios from "axios"; // ✅ Missing import added
+import axios from "axios"; 
 
 const app = express();
-const PORT = 5000; // ✅ Make sure you're running frontend on a different port like 5173
+const PORT = 5000; // 
 
 // CORS for frontend access
 app.use(
   cors({
-    origin: "http://localhost:5173", // ✅ match your frontend
+    origin: "http://localhost:5173", 
     credentials: true,
   })
 );
 
-// ✅ Proxy route
+// Proxy route
 app.get("/proxy", async (req, res) => {
   const url = req.query.url;
   if (!url) return res.status(400).send("URL is required");
@@ -29,6 +29,7 @@ app.get("/proxy", async (req, res) => {
   }
 });
 
+// Search route
 app.get("/search", async (req, res) => {
   const query = req.query.q;
   if (!query) return res.status(400).send("Query is required");
@@ -47,11 +48,9 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use("/temp", express.static("temp"));
 
-// Your other routes
 import cameraRouter from "./routers/camera.route.js";
 app.use("/api/v1/camera", cameraRouter);
 
-// ✅ Start the server
 app.listen(PORT, () => {
   console.log(`Server running on http://localhost:${PORT}`);
 });
